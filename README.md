@@ -1,5 +1,7 @@
 # Ferto
 
+[![Build Status](https://travis-ci.org/skroutz/ferto.svg?branch=master)](https://travis-ci.org/skroutz/ferto)
+
 A Ruby client for [skroutz/downloader](https://github.com/skroutz/downloader).
 
 ## Installation
