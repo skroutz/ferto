@@ -33,7 +33,7 @@ client = Ferto::Client.new(
 )
 ```
 
-### Downloading an image
+### Downloading a file
 
 ```ruby
 client.download(aggr_id: 'bucket1',
