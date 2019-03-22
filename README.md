@@ -59,15 +59,16 @@ class DownloaderController < ApplicationConroller
     cb = Ferto::Callback.new(callback_params)
 
     if cb.download_successful?
-        # Download cb.download_url
+      # Download cb.download_url
     else
-        # Log failure
+      # Log failure
     end
-   end
+  end
 
-    def callback_params
-      params.permit!.to_h
-    end
+  def callback_params
+    params.permit!.to_h
+  end
+end
 ```
 
 ## Contributing
