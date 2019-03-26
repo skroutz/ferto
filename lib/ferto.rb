@@ -2,6 +2,7 @@ require 'ferto/version'
 require 'ferto/client'
 require 'ferto/response'
 require 'ferto/callback'
+require 'ferto/callback/parser_error'
 
 module Ferto
   DEFAULT_CONFIG = {
