@@ -46,22 +46,29 @@ module Ferto
     #
     # @example
     #   downloader = Ferto::Client.new
-    #   downloader.download(
+    #   dl_resp = downloader.download(
     #     aggr_id: 'msystems',
     #     aggr_limit: 3,
     #     url: 'http://foo.bar/a.jpg',
-    #     callback_url: 'http://example.com/downloads/myfile',
+    #     callback_type: 'http',
+    #     callback_dst: 'http://example.com/downloads/myfile',
     #     extra: { groupno: 'foobar' }
     #   )
     #
-    # @return [Ferto::Client::Response]
+    # @raise [Ferto::ConnectionError] if the client failed to connect to the
+    #   downloader API
+    #
+    # @return [Ferto::Response]
     def download(aggr_id:, aggr_limit: @aggr_limit, url:,
-                 callback_url:, mime_type: "", extra: {})
+                 callback_url: "", callback_dst: "",
+                 callback_type: "", mime_type: "", extra: {})
       uri = URI::HTTP.build(
         scheme: scheme, host: host, port: port, path: path
       )
       body = build_body(
-        aggr_id, aggr_limit, url, callback_url, mime_type, extra)
+        aggr_id, aggr_limit, url, callback_url, callback_type, callback_dst,
+        mime_type, extra
+      )
       # Curl.post reuses the same handler
       begin
         res = Curl.post(uri.to_s, body.to_json) do |handle|
@@ -81,17 +88,24 @@ module Ferto
     def build_header(aggr_id)
       {
         'Content-Type': 'application/json',
-        'X-Aggr':      aggr_id.to_s
+        'X-Aggr': aggr_id.to_s
       }
     end
 
-    def build_body(aggr_id, aggr_limit, url, callback_url, mime_type, extra)
+    def build_body(aggr_id, aggr_limit, url, callback_url, callback_type,
+                   callback_dst, mime_type, extra)
       body = {
         aggr_id: aggr_id,
         aggr_limit: aggr_limit,
-        url: url,
-        callback_url: callback_url
+        url: url
       }
+
+      if callback_url.empty?
+        body[:callback_type] = callback_type
+        body[:callback_dst] = callback_dst
+      else
+        body[:callback_url] = callback_url
+      end
 
       if !mime_type.empty?
         body[:mime_type] = mime_type

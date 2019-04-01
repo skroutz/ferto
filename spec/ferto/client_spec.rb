@@ -36,7 +36,8 @@ describe Ferto::Client do
         aggr_id: 'bucket1',
         aggr_limit: 3,
         url: 'https://foo.bar/a.jpg',
-        callback_url: 'http://example.com/downloads/myfile',
+        callback_type: 'my-callback-mechanism',
+        callback_dst: 'http://example.com/downloads/myfile',
         extra: { product: 1234, actor: 'actor1' }
       }
     end
@@ -63,6 +64,24 @@ describe Ferto::Client do
       expect(subject.job_id).to eq job_id
     end
 
+    context 'when the HTTP notifier backend is selected via callback_url' do
+      let(:params) do
+        {
+          aggr_id: 'bucket1',
+          aggr_limit: 3,
+          url: 'https://foo.bar/a.jpg',
+          callback_url: 'http://example.com/downloads/myfile',
+          extra: { product: 1234, actor: 'actor1' }
+        }
+      end
+
+      it 'returns ok' do
+        expect(subject).to be_a Ferto::Response
+        expect(subject.response_code).to eq 201
+        expect(subject.job_id).to eq job_id
+      end
+    end
+
     context "when connection error" do
       before do
         stub_request(:post, downloader_url).
@@ -79,7 +98,9 @@ describe Ferto::Client do
         {
           aggr_id: 'bucket1',
           aggr_limit: 3,
-          url: 'https://foo.bar/a.jpg',
+          # missing 'url' param
+          callback_type: 'my-callback-mechanism',
+          callback_dst: 'http://example.com/downloads/myfile',
           extra: { product: 1234, actor: 'actor1' }
         }
       end
