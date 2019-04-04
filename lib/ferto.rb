@@ -14,4 +14,6 @@ module Ferto
     timeout: 6,
     aggr_limit: 4
   }.freeze
+
+  class ConnectionError < StandardError; end
 end

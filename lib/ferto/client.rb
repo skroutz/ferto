@@ -63,10 +63,14 @@ module Ferto
       body = build_body(
         aggr_id, aggr_limit, url, callback_url, mime_type, extra)
       # Curl.post reuses the same handler
-      res = Curl.post(uri.to_s, body.to_json) do |handle|
-        handle.headers = build_header(aggr_id)
-        handle.connect_timeout = connect_timeout
-        handle.timeout = timeout
+      begin
+        res = Curl.post(uri.to_s, body.to_json) do |handle|
+          handle.headers = build_header(aggr_id)
+          handle.connect_timeout = connect_timeout
+          handle.timeout = timeout
+        end
+      rescue Curl::Err::ConnectionFailedError => e
+        raise Ferto::ConnectionError.new(e)
       end
 
       Ferto::Response.new res

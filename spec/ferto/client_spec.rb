@@ -63,6 +63,17 @@ describe Ferto::Client do
       expect(subject.job_id).to eq job_id
     end
 
+    context "when connection error" do
+      before do
+        stub_request(:post, downloader_url).
+          to_raise(Curl::Err::ConnectionFailedError)
+      end
+
+      it "raises Ferto::ConnectionError" do
+        expect { subject }.to raise_error(Ferto::ConnectionError)
+      end
+    end
+
     context 'when a required param is missing' do
       let(:params) do
         {
