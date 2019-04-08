@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/skroutz/ferto.svg?branch=master)](https://travis-ci.org/skroutz/ferto)
 [![Gem Version](https://badge.fury.io/rb/ferto.svg)](https://badge.fury.io/rb/ferto)
+[![Documentation](http://img.shields.io/badge/yard-docs-blue.svg)](http://www.rubydoc.info/github/skroutz/ferto)
 
 A Ruby client for [skroutz/downloader](https://github.com/skroutz/downloader).
 
