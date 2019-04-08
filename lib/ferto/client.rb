@@ -26,7 +26,7 @@ module Ferto
     #   the service to make.
     attr_reader :aggr_limit
 
-    # @param [Hash{Symbol => String, Fixnum}]
+    # @param opts [Hash{Symbol => String, Fixnum}]
     # @option opts [String] :scheme
     # @option opts [String] :host
     # @option opts [String] :path
@@ -47,21 +47,30 @@ module Ferto
 
     # Sends a request to Downloader and returns its reply.
     #
+    # @param url           [String] the resource to be downloaded
+    # @param callback_type [String]
+    # @param callback_dst  [String] the callback destination
+    # @param mime_type     [String] (default: "") accepted MIME types for the
+    #   resource
+    # @param aggr_id       [String] aggregation identifier
+    # @param aggr_limit    [Integer] aggregation concurrency limit
+    #
     # @example
-    #   downloader = Ferto::Client.new
-    #   dl_resp = downloader.download(
-    #     aggr_id: 'msystems',
-    #     aggr_limit: 3,
+    #   client.download(
     #     url: 'http://foo.bar/a.jpg',
     #     callback_type: 'http',
-    #     callback_dst: 'http://example.com/downloads/myfile',
-    #     extra: { groupno: 'foobar' }
+    #     callback_dst: 'http://myapp.com/handle-download',
+    #     aggr_id: 'foo', aggr_limit: 3,
+    #     mime_type: "image/jpeg",
+    #     extra: { something: 'someone' }
     #   )
     #
-    # @raise [Ferto::ConnectionError] if the client failed to connect to the
-    #   downloader API
+    # @raise [Ferto::ConnectionError] if there was an error scheduling the
+    #   job to downloader
     #
     # @return [Ferto::Response]
+    #
+    # @see https://github.com/skroutz/downloader/#post-download
     def download(aggr_id:, aggr_limit: @aggr_limit, url:,
                  callback_url: "", callback_dst: "",
                  callback_type: "", mime_type: "", extra: {})
