@@ -1,3 +1,6 @@
+require "curl"
+require "json"
+
 module Ferto
   class Client
     # @return [String]
