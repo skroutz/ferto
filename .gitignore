@@ -9,4 +9,5 @@
 /tmp/
 
 *.swp
+*.gem
 .rspec
