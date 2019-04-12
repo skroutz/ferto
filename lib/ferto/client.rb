@@ -54,6 +54,14 @@ module Ferto
     #   resource
     # @param aggr_id       [String] aggregation identifier
     # @param aggr_limit    [Integer] aggregation concurrency limit
+    # @param aggr_proxy    [String] the HTTP proxy to use for downloading the
+    #   resource, by default no proxy is used. The proxy is set up on
+    #   aggregation level and it cannot be updated for an existing aggregation.
+    # @param download_timeout [Integer] the maximum time to wait for the
+    #   resource to be downloaded in seconds, by default there is no timeout
+    # @param user_agent [String] the User-Agent string to use for
+    #   downloading the resource, by default it uses the User-Agent string
+    #   set in the downloader's configuration
     #
     # @example
     #   client.download(
@@ -61,6 +69,9 @@ module Ferto
     #     callback_type: 'http',
     #     callback_dst: 'http://myapp.com/handle-download',
     #     aggr_id: 'foo', aggr_limit: 3,
+    #     download_timeout: 120,
+    #     aggr_proxy: 'http://myproxy.com/',
+    #     user_agent: 'my-useragent',
     #     mime_type: "image/jpeg",
     #     extra: { something: 'someone' }
     #   )
@@ -72,6 +83,7 @@ module Ferto
     #
     # @see https://github.com/skroutz/downloader/#post-download
     def download(aggr_id:, aggr_limit: @aggr_limit, url:,
+                 aggr_proxy: nil, download_timeout: nil, user_agent: nil,
                  callback_url: "", callback_dst: "",
                  callback_type: "", mime_type: "", extra: {})
       uri = URI::HTTP.build(
@@ -79,7 +91,7 @@ module Ferto
       )
       body = build_body(
         aggr_id, aggr_limit, url, callback_url, callback_type, callback_dst,
-        mime_type, extra
+        aggr_proxy, download_timeout, user_agent, mime_type, extra
       )
       # Curl.post reuses the same handler
       begin
@@ -105,7 +117,8 @@ module Ferto
     end
 
     def build_body(aggr_id, aggr_limit, url, callback_url, callback_type,
-                   callback_dst, mime_type, extra)
+                   callback_dst, aggr_proxy, download_timeout, user_agent,
+                   mime_type, extra)
       body = {
         aggr_id: aggr_id,
         aggr_limit: aggr_limit,
@@ -122,6 +135,10 @@ module Ferto
       if !mime_type.empty?
         body[:mime_type] = mime_type
       end
+
+      body[:aggr_proxy] = aggr_proxy if aggr_proxy
+      body[:download_timeout] = download_timeout if download_timeout
+      body[:user_agent] = user_agent if user_agent
 
       if !extra.nil?
         body[:extra] = extra.is_a?(Hash) ? extra.to_json : extra.to_s
