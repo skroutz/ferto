@@ -93,6 +93,22 @@ describe Ferto::Client do
       end
     end
 
+    context "when a 40X or 50X response code is returned" do
+      before do
+        stub_request(:post, downloader_url).
+          to_return(status: 500,
+                    body: "Internal Server Error",
+                    headers: { 'Content-Type' => 'Application/json' })
+      end
+
+      it "raises Ferto::ResponseError" do
+        error_msg = ("An error occured during the download call. "  \
+          "Received a 500 response code and body " \
+          "Internal Server Error")
+        expect { subject }.to raise_error(Ferto::ResponseError, error_msg)
+      end
+    end
+
     context 'when a required param is missing' do
       let(:params) do
         {

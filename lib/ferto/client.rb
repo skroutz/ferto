@@ -77,7 +77,8 @@ module Ferto
     #   )
     #
     # @raise [Ferto::ConnectionError] if there was an error scheduling the
-    #   job to downloader
+    #   job to downloader with respect to the fact that a Curl ConnectionFailedError occured
+    # @raise [Ferto::ResponseError] if a response code of 40X or 50X is received
     #
     # @return [Ferto::Response]
     #
@@ -99,6 +100,14 @@ module Ferto
           handle.headers = build_header(aggr_id)
           handle.connect_timeout = connect_timeout
           handle.timeout = timeout
+        end
+
+        case res.response_code
+        when 400..599
+          error_msg = ("An error occured during the download call. "  \
+            "Received a #{res.response_code} response code and body " \
+            "#{res.body_str}")
+          raise Ferto::ResponseError.new(error_msg, res)
         end
       rescue Curl::Err::ConnectionFailedError => e
         raise Ferto::ConnectionError.new(e)
