@@ -77,6 +77,10 @@ If the connection with the `downloader` API was successful, the aforementioned
 object. If the client failed to connect, a
 [`Ferto::ConnectionError`](https://github.com/skroutz/ferto/blob/master/lib/ferto.rb#L18)
 exception is raised.
+Also if the download call, results to a response with code
+either `40X` or `50X` then a [`Ferto::ResponseError`](https://github.com/skroutz/ferto/blob/master/lib/ferto.rb#L21)
+is raised with the response object encapsulated in the raised exception in order 
+to be further handled by the end user.
 
 To handle the actual callback message, e.g. from inside a Rails controller:
 
