@@ -4,8 +4,11 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 
 ## master (unreleased)
 
+## 0.0.5 (2019-05-16)
 
+### Added
 
+- [BREAKING] `Ferto::ResponseError` exception raising when 40X or 50X response is returned [[#9](https://github.com/skroutz/ferto/pull/9)]
 
 ## 0.0.4 (2019-04-18)
 
