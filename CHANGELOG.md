@@ -4,6 +4,12 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 
 ## master (unreleased)
 
+## 0.0.6 (2019-07-09)
+
+### Added
+
+- Support for setting request headers in download requests [[#10](https://github.com/skroutz/ferto/pull/10)]
+
 ## 0.0.5 (2019-05-16)
 
 ### Added
