@@ -38,8 +38,25 @@ describe Ferto::Client do
         url: 'https://foo.bar/a.jpg',
         callback_type: 'my-callback-mechanism',
         callback_dst: 'http://example.com/downloads/myfile',
-        extra: { product: 1234, actor: 'actor1' }
+        user_agent: "Downloader Agent v1.0",
+        extra: { product: 1234, actor: 'actor1' },
+        request_headers: { "Accept" => "image/*" }
       }
+    end
+    let(:body_args) do
+      [
+        params[:aggr_id], params[:aggr_limit], params[:url],
+        "", params[:callback_type], params[:callback_dst],
+        nil, nil, params[:user_agent],
+        "", params[:extra], params[:request_headers]
+      ]
+    end
+    let(:post_params) do
+      data = params.clone
+      data[:extra] = data[:extra].to_json
+      data[:request_headers].merge!({"User-Agent" => params[:user_agent]})
+
+      data
     end
     let(:downloader) { Ferto::Client.new }
     let(:downloader_url) do
@@ -56,6 +73,16 @@ describe Ferto::Client do
         to_return(status: 201,
                   body: body,
                   headers: { 'Content-Type' => 'Application/json' })
+    end
+
+    it 'builds the body correctly' do
+      actual = downloader.send(:build_body, *body_args)
+      expect(actual).to eq(post_params)
+    end
+
+    it 'calls build_body before performing download' do
+      expect(downloader).to receive(:build_body).with(*body_args)
+      subject
     end
 
     it 'returns ok' do

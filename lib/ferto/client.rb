@@ -62,6 +62,9 @@ module Ferto
     # @param user_agent [String] the User-Agent string to use for
     #   downloading the resource, by default it uses the User-Agent string
     #   set in the downloader's configuration
+    # @param request_headers [Hash] the request headers that will be used
+    #   in downloader when performing the actual request in order to fetch
+    #   the desired resource
     #
     # @example
     #   client.download(
@@ -73,6 +76,7 @@ module Ferto
     #     aggr_proxy: 'http://myproxy.com/',
     #     user_agent: 'my-useragent',
     #     mime_type: "image/jpeg",
+    #     request_headers: { "Accept" => "image/*,*/*;q=0.8" },
     #     extra: { something: 'someone' }
     #   )
     #
@@ -86,13 +90,16 @@ module Ferto
     def download(aggr_id:, aggr_limit: @aggr_limit, url:,
                  aggr_proxy: nil, download_timeout: nil, user_agent: nil,
                  callback_url: "", callback_dst: "",
-                 callback_type: "", mime_type: "", extra: {})
+                 callback_type: "", mime_type: "", extra: {},
+                 request_headers: {})
       uri = URI::HTTP.build(
         scheme: scheme, host: host, port: port, path: path
       )
       body = build_body(
-        aggr_id, aggr_limit, url, callback_url, callback_type, callback_dst,
-        aggr_proxy, download_timeout, user_agent, mime_type, extra
+        aggr_id, aggr_limit, url,
+        callback_url, callback_type, callback_dst,
+        aggr_proxy, download_timeout, user_agent,
+        mime_type, extra, request_headers
       )
       # Curl.post reuses the same handler
       begin
@@ -127,7 +134,7 @@ module Ferto
 
     def build_body(aggr_id, aggr_limit, url, callback_url, callback_type,
                    callback_dst, aggr_proxy, download_timeout, user_agent,
-                   mime_type, extra)
+                   mime_type, extra, request_headers)
       body = {
         aggr_id: aggr_id,
         aggr_limit: aggr_limit,
@@ -152,6 +159,19 @@ module Ferto
       if !extra.nil?
         body[:extra] = extra.is_a?(Hash) ? extra.to_json : extra.to_s
       end
+
+      # We will continue to expose the user_agent field just like tools
+      # like curl and wget do. Along with that we will follow their paradigm
+      # where if both a user-agent flag and a `User-Agent` in the request headers
+      # are provided then the user agent in the request headers is preferred.
+      #
+      # Also if the `user_agent` is provided but the request headers do not
+      # contain a `User-Agent` key, then the `user_agent` is copied to the headers
+      if user_agent && !request_headers.key?("User-Agent")
+        request_headers["User-Agent"] = user_agent
+      end
+
+      body[:request_headers] = request_headers
 
       body
     end

@@ -50,7 +50,8 @@ dl_resp = client.download(aggr_id: 'bucket1',
                           mime_type: 'text/html',
                           callback_type: 'http',
                           callback_dst: 'http://myservice.com/downloader_callback',
-                          extra: { some_extra_info: 'info' })
+                          extra: { some_extra_info: 'info' },
+                          request_headers: { "Accept" => "application/html,application/xhtml+html" })
 ```
 
 In order for a service to consume downloader's result, it *must* accept the HTTP
@@ -65,7 +66,8 @@ dl_resp = client.download(aggr_id: 'bucket1',
                           mime_type: 'text/html',
                           callback_type: 'kafka',
                           callback_dst: 'my-kafka-topic',
-                          extra: { some_extra_info: 'info' })
+                          extra: { some_extra_info: 'info' },
+                          request_headers: { "Accept" => "application/html,application/xhtml+html" })
 ```
 
 To consume the downloader's result, you can use your favorite Kafka library and
@@ -79,7 +81,7 @@ object. If the client failed to connect, a
 exception is raised.
 Also if the download call, results to a response with code
 either `40X` or `50X` then a [`Ferto::ResponseError`](https://github.com/skroutz/ferto/blob/master/lib/ferto.rb#L21)
-is raised with the response object encapsulated in the raised exception in order 
+is raised with the response object encapsulated in the raised exception in order
 to be further handled by the end user.
 
 To handle the actual callback message, e.g. from inside a Rails controller:
@@ -106,6 +108,17 @@ end
 > payload, please, refer to the official downloader's documentation ([download
 > parameters](https://github.com/skroutz/downloader#endpoints), [callback
 > payload](https://github.com/skroutz/downloader/tree/kafka-backend#usage)).
+
+
+#### A Note on User-Agent
+
+We continue to expose the `user_agent` field as tools like `curl` and `wget` do.
+Along with that we will follow their paradigm where if both a `user-agent` flag
+and a `User-Agent` in the request headers are provided then the user-agent in
+the request headers is preferred.
+
+Also if the `user_agent` is provided but the request headers do not
+contain a `User-Agent` key, then the `user_agent` is copied to the headers
 
 ## Contributing
 
