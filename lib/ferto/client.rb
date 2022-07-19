@@ -91,7 +91,8 @@ module Ferto
                  aggr_proxy: nil, download_timeout: nil, user_agent: nil,
                  callback_url: "", callback_dst: "",
                  callback_type: "", mime_type: "", extra: {},
-                 request_headers: {})
+                 request_headers: {},
+                 s3_bucket: nil, s3_region: nil)
       uri = URI::HTTP.build(
         scheme: scheme, host: host, port: port, path: path
       )
@@ -99,7 +100,8 @@ module Ferto
         aggr_id, aggr_limit, url,
         callback_url, callback_type, callback_dst,
         aggr_proxy, download_timeout, user_agent,
-        mime_type, extra, request_headers
+        mime_type, extra, request_headers,
+        s3_bucket, s3_region
       )
       # Curl.post reuses the same handler
       begin
@@ -134,12 +136,24 @@ module Ferto
 
     def build_body(aggr_id, aggr_limit, url, callback_url, callback_type,
                    callback_dst, aggr_proxy, download_timeout, user_agent,
-                   mime_type, extra, request_headers)
+                   mime_type, extra, request_headers,
+                   s3_bucket, s3_region)
       body = {
         aggr_id: aggr_id,
         aggr_limit: aggr_limit,
         url: url
       }
+
+      if s3_bucket && s3_region
+        body[:s3_bucket] = s3_bucket
+        body[:s3_region] = s3_region
+      end
+
+      if !s3_bucket && s3_region
+        raise ArgumentError, "s3_region provided without an s3_bucket"
+      elsif !s3_region && s3_bucket
+        raise ArgumentError, "s3_bucket provided without an s3_region"
+      end
 
       if callback_url.empty?
         body[:callback_type] = callback_type

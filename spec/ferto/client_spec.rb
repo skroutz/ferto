@@ -48,7 +48,8 @@ describe Ferto::Client do
         params[:aggr_id], params[:aggr_limit], params[:url],
         "", params[:callback_type], params[:callback_dst],
         nil, nil, params[:user_agent],
-        "", params[:extra], params[:request_headers]
+        "", params[:extra], params[:request_headers],
+        nil, nil
       ]
     end
     let(:post_params) do
@@ -150,6 +151,138 @@ describe Ferto::Client do
 
       it 'does not send the request' do
         expect { subject }.to raise_error ArgumentError
+      end
+    end
+
+    context 'when s3 is passed as a filestorage without callbacks' do
+      let(:params) do
+        {
+          aggr_id: 'bucket1',
+          aggr_limit: 3,
+          url: 'https://foo.bar/a.jpg',
+          extra: { product: 1234, actor: 'actor1' },
+          request_headers: { 'Accept' => 'image/*' },
+          s3_bucket: 'mybucketname',
+          s3_region: 'eu-west-2'
+        }
+      end
+
+      let(:body_args) do
+        [
+          params[:aggr_id], params[:aggr_limit], params[:url],
+          "", "", "",
+          nil, nil, params[:user_agent],
+          "", params[:extra], params[:request_headers],
+          params[:s3_bucket], params[:s3_region]
+        ]
+      end
+
+      let(:post_params) do
+        data = params.clone
+        data[:callback_type] = ""
+        data[:callback_dst] = ""
+        data[:extra] = data[:extra].to_json
+        data[:request_headers].merge!({"User-Agent" => params[:user_agent]})
+
+        data
+      end
+
+      it 'builds the body correctly' do
+        actual = downloader.send(:build_body, *body_args)
+        expect(actual).to eq(post_params)
+      end
+
+      it 'calls build_body before performing download' do
+        expect(downloader).to receive(:build_body).with(*body_args)
+        subject
+      end
+
+      it 'returns ok' do
+        expect(subject).to be_a Ferto::Response
+        expect(subject.response_code).to eq 201
+        expect(subject.job_id).to eq job_id
+      end
+
+      context 's3_bucket is missing' do
+        it 'does not send the request' do
+          params[:s3_bucket] = nil
+
+          expect { subject }.to raise_error ArgumentError
+        end
+      end
+
+      context 's3_region is missing' do
+        it 'does not send the request' do
+          params[:s3_region] = nil
+
+          expect { subject }.to raise_error ArgumentError
+        end
+      end
+    end
+
+    context 'when s3 is passed as a filestorage with callbacks' do
+      let(:params) do
+        {
+          aggr_id: 'bucket1',
+          aggr_limit: 3,
+          url: 'https://foo.bar/a.jpg',
+          callback_type: 'my-callback-mechanism',
+          callback_dst: 'http://example.com/downloads/myfile',
+          extra: { product: 1234, actor: 'actor1' },
+          request_headers: { 'Accept' => 'image/*' },
+          s3_bucket: 'mybucketname',
+          s3_region: 'eu-west-2'
+        }
+      end
+
+      let(:body_args) do
+        [
+          params[:aggr_id], params[:aggr_limit], params[:url],
+          "", params[:callback_type], params[:callback_dst],
+          nil, nil, params[:user_agent],
+          "", params[:extra], params[:request_headers],
+          params[:s3_bucket], params[:s3_region]
+        ]
+      end
+
+      let(:post_params) do
+        data = params.clone
+        data[:extra] = data[:extra].to_json
+        data[:request_headers].merge!({"User-Agent" => params[:user_agent]})
+
+        data
+      end
+
+      it 'builds the body correctly' do
+        actual = downloader.send(:build_body, *body_args)
+        expect(actual).to eq(post_params)
+      end
+
+      it 'calls build_body before performing download' do
+        expect(downloader).to receive(:build_body).with(*body_args)
+        subject
+      end
+
+      it 'returns ok' do
+        expect(subject).to be_a Ferto::Response
+        expect(subject.response_code).to eq 201
+        expect(subject.job_id).to eq job_id
+      end
+
+      context 's3_bucket is missing' do
+        it 'does not send the request' do
+          params[:s3_bucket] = nil
+
+          expect { subject }.to raise_error ArgumentError
+        end
+      end
+
+      context 's3_region is missing' do
+        it 'does not send the request' do
+          params[:s3_region] = nil
+
+          expect { subject }.to raise_error ArgumentError
+        end
       end
     end
   end
