@@ -10,6 +10,12 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 
 - Support for setting request headers in download requests [[#10](https://github.com/skroutz/ferto/pull/10)]
 
+## 0.0.7 (2022-07-21)
+
+### Added
+
+- Support for setting AWS S3 bucket as filestorage solution [[#11](https://github.com/skroutz/ferto/pull/11)]
+
 ## 0.0.5 (2019-05-16)
 
 ### Added
