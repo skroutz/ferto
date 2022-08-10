@@ -92,7 +92,7 @@ module Ferto
                  callback_url: "", callback_dst: "",
                  callback_type: "", mime_type: "", extra: {},
                  request_headers: {},
-                 s3_bucket: nil, s3_region: nil)
+                 s3_bucket: nil, s3_region: nil, subpath: nil)
       uri = URI::HTTP.build(
         scheme: scheme, host: host, port: port, path: path
       )
@@ -101,7 +101,7 @@ module Ferto
         callback_url, callback_type, callback_dst,
         aggr_proxy, download_timeout, user_agent,
         mime_type, extra, request_headers,
-        s3_bucket, s3_region
+        s3_bucket, s3_region, subpath
       )
       # Curl.post reuses the same handler
       begin
@@ -137,7 +137,7 @@ module Ferto
     def build_body(aggr_id, aggr_limit, url, callback_url, callback_type,
                    callback_dst, aggr_proxy, download_timeout, user_agent,
                    mime_type, extra, request_headers,
-                   s3_bucket, s3_region)
+                   s3_bucket, s3_region, subpath)
       body = {
         aggr_id: aggr_id,
         aggr_limit: aggr_limit,
@@ -166,6 +166,7 @@ module Ferto
         body[:mime_type] = mime_type
       end
 
+      body[:subpath] = subpath if subpath
       body[:aggr_proxy] = aggr_proxy if aggr_proxy
       body[:download_timeout] = download_timeout if download_timeout
       body[:user_agent] = user_agent if user_agent
