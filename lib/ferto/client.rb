@@ -65,6 +65,8 @@ module Ferto
     # @param request_headers [Hash] the request headers that will be used
     #   in downloader when performing the actual request in order to fetch
     #   the desired resource
+    # @param subpath [String] the subfolder(s) that the jobs will be stored
+    #   under the top level directory of storage backend
     #
     # @example
     #   client.download(
