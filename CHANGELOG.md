@@ -4,6 +4,12 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 
 ## master (unreleased)
 
+## 0.0.8 (2022-08-16)
+
+### Added
+
+- Support for setting subpath in download requests [[#12](https://github.com/skroutz/ferto/pull/12)]
+
 ## 0.0.6 (2019-07-09)
 
 ### Added
