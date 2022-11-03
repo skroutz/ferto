@@ -50,6 +50,8 @@ module Ferto
     # @param url           [String] the resource to be downloaded
     # @param callback_type [String]
     # @param callback_dst  [String] the callback destination
+    # @param callback_error_type [String]
+    # @param callback_error_dst  [String] the callback destination in case the job fails
     # @param mime_type     [String] (default: "") accepted MIME types for the
     #   resource
     # @param aggr_id       [String] aggregation identifier
@@ -91,8 +93,9 @@ module Ferto
     # @see https://github.com/skroutz/downloader/#post-download
     def download(aggr_id:, aggr_limit: @aggr_limit, url:,
                  aggr_proxy: nil, download_timeout: nil, user_agent: nil,
-                 callback_url: "", callback_dst: "",
-                 callback_type: "", mime_type: "", extra: {},
+                 callback_url: "", callback_dst: "", callback_type: "",
+                 callback_error_type: "", callback_error_dst: "",
+                 mime_type: "", extra: {},
                  request_headers: {},
                  s3_bucket: nil, s3_region: nil, subpath: nil)
       uri = URI::HTTP.build(
@@ -101,6 +104,7 @@ module Ferto
       body = build_body(
         aggr_id, aggr_limit, url,
         callback_url, callback_type, callback_dst,
+        callback_error_type, callback_error_dst,
         aggr_proxy, download_timeout, user_agent,
         mime_type, extra, request_headers,
         s3_bucket, s3_region, subpath
@@ -137,7 +141,8 @@ module Ferto
     end
 
     def build_body(aggr_id, aggr_limit, url, callback_url, callback_type,
-                   callback_dst, aggr_proxy, download_timeout, user_agent,
+                   callback_dst, callback_error_type, callback_error_dst,
+                   aggr_proxy, download_timeout, user_agent,
                    mime_type, extra, request_headers,
                    s3_bucket, s3_region, subpath)
       body = {
@@ -163,6 +168,9 @@ module Ferto
       else
         body[:callback_url] = callback_url
       end
+
+      body[:callback_error_type] = callback_error_type unless callback_error_type.to_s.empty?
+      body[:callback_error_dst] = callback_error_dst unless callback_error_dst.to_s.empty?
 
       if !mime_type.empty?
         body[:mime_type] = mime_type
