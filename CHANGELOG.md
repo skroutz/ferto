@@ -4,6 +4,13 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 
 ## master (unreleased)
 
+## 0.1.0 (2023-06-16)
+
+ - Add compatibility for Ruby 3
+   - Unpin curb version from gemspec
+   - Unpin faker version
+   - specs: Pass params as kwargs instead of hash
+
 ## 0.0.9 (2022-11-14)
 
 ### Added
