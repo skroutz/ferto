@@ -29,7 +29,7 @@ describe Ferto::Client do
   end
 
   describe '#download' do
-    subject { downloader.download(params) }
+    subject { downloader.download(**params) }
 
     let(:params) do
       {
