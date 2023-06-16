@@ -1,6 +1,6 @@
 # Ferto
 
-[![Build Status](https://travis-ci.org/skroutz/ferto.svg?branch=master)](https://travis-ci.org/skroutz/ferto)
+![Build Status](https://github.com/skroutz/ferto/actions/workflows/CI.yml/badge.svg?branch=master)
 [![Gem Version](https://badge.fury.io/rb/ferto.svg)](https://badge.fury.io/rb/ferto)
 [![Documentation](http://img.shields.io/badge/yard-docs-blue.svg)](http://www.rubydoc.info/github/skroutz/ferto)
 
