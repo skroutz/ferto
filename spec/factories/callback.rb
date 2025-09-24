@@ -1,3 +1,5 @@
+require 'ostruct'
+
 FactoryBot.define do
   factory :downloader_callback_params, aliases: [:successful_callback], class: OpenStruct do
     success { true }
