@@ -69,6 +69,8 @@ module Ferto
     #   the desired resource
     # @param subpath [String] the subfolder(s) that the jobs will be stored
     #   under the top level directory of storage backend
+    # @param download_url [String] the URL prefix (scheme://host) that will be used in the callback to
+    #   signify the job result file location
     #
     # @example
     #   client.download(
@@ -82,6 +84,7 @@ module Ferto
     #     mime_type: "image/jpeg",
     #     request_headers: { "Accept" => "image/*,*/*;q=0.8" },
     #     extra: { something: 'someone' }
+    #     download_url: 'https://mybucket.s3.amazonaws.com/a.jpg'
     #   )
     #
     # @raise [Ferto::ConnectionError] if there was an error scheduling the
@@ -97,7 +100,8 @@ module Ferto
                  callback_error_type: "", callback_error_dst: "",
                  mime_type: "", extra: {},
                  request_headers: {},
-                 s3_bucket: nil, s3_region: nil, subpath: nil)
+                 s3_bucket: nil, s3_region: nil, subpath: nil,
+                 download_url: nil)
       uri = URI::HTTP.build(
         scheme: scheme, host: host, port: port, path: path
       )
@@ -107,7 +111,7 @@ module Ferto
         callback_error_type, callback_error_dst,
         aggr_proxy, download_timeout, user_agent,
         mime_type, extra, request_headers,
-        s3_bucket, s3_region, subpath
+        s3_bucket, s3_region, subpath, download_url
       )
       # Curl.post reuses the same handler
       begin
@@ -144,7 +148,7 @@ module Ferto
                    callback_dst, callback_error_type, callback_error_dst,
                    aggr_proxy, download_timeout, user_agent,
                    mime_type, extra, request_headers,
-                   s3_bucket, s3_region, subpath)
+                   s3_bucket, s3_region, subpath, download_url)
       body = {
         aggr_id: aggr_id,
         aggr_limit: aggr_limit,
@@ -197,6 +201,8 @@ module Ferto
       end
 
       body[:request_headers] = request_headers
+
+      body[:download_url] = download_url unless download_url.to_s.empty?
 
       body
     end

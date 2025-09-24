@@ -5,6 +5,10 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 ## master (unreleased)
 
 - Add compatibility for Ruby 3.4 and 3.5
+- Add support for `Ferto::Job#download` method to accept a custom `download_url` parameter.
+  - This parameter will be the URL prefix (scheme://host) in downloader's
+  callback download_url in order for the client to be able to locate the job's
+  result file.
 
 ## 0.1.0 (2023-06-16)
 

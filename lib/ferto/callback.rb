@@ -1,3 +1,5 @@
+require 'uri'
+
 module Ferto
   class Callback
     # @return [String, NilClass] The error message of the download or nil if there was
@@ -10,6 +12,9 @@ module Ferto
     # @return [String] The URL from which the resulting downloaded file can be
     #   fetched.
     attr_reader :download_url
+
+    # @return [String] The download URL scheme
+    attr_reader :download_url_scheme
 
     # @return [String] The original resource URL of the job.
     attr_reader :resource_url
@@ -39,6 +44,13 @@ module Ferto
       @error = params[:error]
       @extra = params[:extra]
       @download_url = params[:download_url]
+
+      begin
+        @download_url_scheme = URI.parse(@download_url).scheme
+      rescue URI::Error, TypeError
+        @download_url_scheme = nil
+      end
+
       @resource_url = params[:resource_url]
       @job_id = params[:job_id]
       @response_code = params[:response_code]
