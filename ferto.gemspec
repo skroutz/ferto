@@ -30,4 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "webmock", "~> 3.5"
   spec.add_development_dependency "factory_bot", "~> 4.10"
   spec.add_development_dependency "faker"
+  spec.add_development_dependency "observer"
 end
