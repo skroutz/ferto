@@ -4,6 +4,8 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 
 ## master (unreleased)
 
+- Add compatibility for Ruby 3.4 and 3.5
+
 ## 0.1.0 (2023-06-16)
 
  - Add compatibility for Ruby 3
