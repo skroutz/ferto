@@ -40,7 +40,8 @@ describe Ferto::Client do
         callback_dst: 'http://example.com/downloads/myfile',
         user_agent: "Downloader Agent v1.0",
         extra: { product: 1234, actor: 'actor1' },
-        request_headers: { "Accept" => "image/*" }
+        request_headers: { "Accept" => "image/*" },
+        download_url: "s3://a-beautiful-bucket.s3.amazonaws.com/path/to/file"
       }
     end
     let(:body_args) do
@@ -49,7 +50,7 @@ describe Ferto::Client do
         "", params[:callback_type], params[:callback_dst], "", "",
         nil, nil, params[:user_agent],
         "", params[:extra], params[:request_headers],
-        nil, nil, nil
+        nil, nil, nil, "s3://a-beautiful-bucket.s3.amazonaws.com/path/to/file"
       ]
     end
     let(:post_params) do
@@ -173,7 +174,7 @@ describe Ferto::Client do
           "", "", "", "", "",
           nil, nil, params[:user_agent],
           "", params[:extra], params[:request_headers],
-          params[:s3_bucket], params[:s3_region], nil
+          params[:s3_bucket], params[:s3_region], nil, nil
         ]
       end
 
@@ -241,7 +242,7 @@ describe Ferto::Client do
           "", params[:callback_type], params[:callback_dst], "","",
           nil, nil, params[:user_agent],
           "", params[:extra], params[:request_headers],
-          params[:s3_bucket], params[:s3_region], nil
+          params[:s3_bucket], params[:s3_region], nil, nil
         ]
       end
 
@@ -306,7 +307,7 @@ describe Ferto::Client do
           "", params[:callback_type], params[:callback_dst], "", "",
           nil, nil, params[:user_agent],
           "", params[:extra], params[:request_headers],
-          nil, nil, params[:subpath]
+          nil, nil, params[:subpath], nil
         ]
       end
 
@@ -357,7 +358,7 @@ describe Ferto::Client do
           params[:callback_error_type], params[:callback_error_dst],
           nil, nil, params[:user_agent],
           "", params[:extra], params[:request_headers],
-          params[:s3_bucket], params[:s3_region], nil
+          params[:s3_bucket], params[:s3_region], nil, nil
         ]
       end
 

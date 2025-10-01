@@ -10,6 +10,14 @@ describe Ferto::Callback do
       it 'processes the download url' do
         expect(subject).to be_download_successful
       end
+
+      context 'with custom download URL' do
+        let(:params) { FactoryBot.build(:successful_callback, download_url: 's3://bucket/key')}
+
+        it 'parses the download URL scheme' do
+          expect(subject.download_url_scheme).to eq('s3')
+        end
+      end
     end
 
     context 'when there are errors' do
