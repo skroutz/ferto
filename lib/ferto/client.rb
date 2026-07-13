@@ -121,18 +121,20 @@ module Ferto
         handle.post_body = body.to_json
         handle.http(:POST)
 
-        case handle.response_code
+        response = Ferto::Response.new(handle)
+
+        case response.response_code
         when 400..599
           error_msg = ("An error occured during the download call. "  \
-            "Received a #{handle.response_code} response code and body " \
-            "#{handle.body_str}")
-          raise Ferto::ResponseError.new(error_msg, handle)
+            "Received a #{response.response_code} response code and body " \
+            "#{response.body}")
+          raise Ferto::ResponseError.new(error_msg, response)
         end
       rescue Curl::Err::ConnectionFailedError => e
         raise Ferto::ConnectionError.new(e)
       end
 
-      Ferto::Response.new handle
+      response
     end
 
     private

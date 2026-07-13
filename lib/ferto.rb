@@ -23,8 +23,8 @@ module Ferto
     # Initialize a Ferto::ResponseError
     #
     # @param [String] err A string describing the error occured
-    # @param [Curl::Easy | nil] response a Curl::Easy object
-    #   that represents the response returned by the download method.
+    # @param [Ferto::Response | nil] response a snapshot of the
+    #   response returned by the download method.
     #   Default: nil
     def initialize(err, response=nil)
       super(err)

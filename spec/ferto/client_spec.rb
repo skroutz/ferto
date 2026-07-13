@@ -119,6 +119,19 @@ describe Ferto::Client do
         expect(fiber_handle).not_to be(handle)
       end
 
+      it 'keeps response data after a subsequent download reuses the handle' do
+        first = downloader.download(**params)
+
+        stub_request(:post, downloader_url).
+          to_return(status: 201,
+                    body: { 'id' => 'other456' }.to_json,
+                    headers: { 'Content-Type' => 'Application/json' })
+        downloader.download(**params)
+
+        expect(first.response_code).to eq 201
+        expect(first.job_id).to eq job_id
+      end
+
       it 'uses a separate handle per thread' do
         downloader.download(**params)
         main_handle = Thread.current[:ferto_curl]
@@ -175,6 +188,25 @@ describe Ferto::Client do
           "Received a 500 response code and body " \
           "Internal Server Error")
         expect { subject }.to raise_error(Ferto::ResponseError, error_msg)
+      end
+
+      it "keeps the error response intact after a subsequent download" do
+        error = nil
+        begin
+          subject
+        rescue Ferto::ResponseError => e
+          error = e
+        end
+
+        stub_request(:post, downloader_url).
+          to_return(status: 201,
+                    body: { 'id' => 'other456' }.to_json,
+                    headers: { 'Content-Type' => 'Application/json' })
+        downloader.download(**params)
+
+        expect(error.response).to be_a(Ferto::Response)
+        expect(error.response.response_code).to eq 500
+        expect(error.response.body).to eq "Internal Server Error"
       end
     end
 
