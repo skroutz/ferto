@@ -4,6 +4,25 @@ Breaking changes are prefixed with a "[BREAKING]" label.
 
 ## master (unreleased)
 
+## 0.1.1 (2026-07-11)
+
+- Manage a per-thread `Curl::Easy` handle in `Client#download` instead of
+  relying on `Curl.post`, whose per-thread handle cache was removed in curb
+  1.3.6. Restores keep-alive connection reuse towards the downloader and
+  prevents open-connection pile-up in long-lived workers.
+  Note: like every setup before curb 1.3.6, the long-lived cached handle is
+  only safe under GC compaction with curb >= 1.3.7 (or a build carrying the
+  `curl_easy_mark` pin fix). The gemspec intentionally leaves curb
+  unconstrained — the consuming app owns the curb version.
+- [BREAKING] `Ferto::Response` is now a plain snapshot object instead of a
+  `SimpleDelegator` around the `Curl::Easy` handle: `response_code` and `body`
+  (aliased as `body_str`) are captured when the response is built, so a
+  response held across `download` calls keeps its own data instead of
+  exposing the reused handle's next request. Other `Curl::Easy` methods are
+  no longer forwarded.
+- [BREAKING] `Ferto::ResponseError#response` now returns a `Ferto::Response`
+  snapshot instead of the live `Curl::Easy` handle, which a subsequent
+  `download` on the same thread would have reset.
 - Add compatibility for Ruby 3.4 and 3.5
 
 ## 0.1.0 (2023-06-16)
