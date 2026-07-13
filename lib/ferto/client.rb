@@ -109,26 +109,30 @@ module Ferto
         mime_type, extra, request_headers,
         s3_bucket, s3_region, subpath
       )
-      # Curl.post reuses the same handler
       begin
-        res = Curl.post(uri.to_s, body.to_json) do |handle|
-          handle.headers = build_header(aggr_id)
-          handle.connect_timeout = connect_timeout
-          handle.timeout = timeout
-        end
+        # Inlines what the Curl.post shortcut did internally (url, post_body,
+        # perform) plus the options previously passed in its block, on a
+        # handle we manage ourselves.
+        handle = curl_handle
+        handle.url = uri.to_s
+        handle.headers = build_header(aggr_id)
+        handle.connect_timeout = connect_timeout
+        handle.timeout = timeout
+        handle.post_body = body.to_json
+        handle.http(:POST)
 
-        case res.response_code
+        case handle.response_code
         when 400..599
           error_msg = ("An error occured during the download call. "  \
-            "Received a #{res.response_code} response code and body " \
-            "#{res.body_str}")
-          raise Ferto::ResponseError.new(error_msg, res)
+            "Received a #{handle.response_code} response code and body " \
+            "#{handle.body_str}")
+          raise Ferto::ResponseError.new(error_msg, handle)
         end
       rescue Curl::Err::ConnectionFailedError => e
         raise Ferto::ConnectionError.new(e)
       end
 
-      Ferto::Response.new res
+      Ferto::Response.new handle
     end
 
     private
@@ -138,6 +142,17 @@ module Ferto
         'Content-Type': 'application/json',
         'X-Aggr': aggr_id.to_s
       }
+    end
+
+    # One handle per thread: curl_easy_reset keeps live connections, so the
+    # keep-alive connection to the downloader is reused across calls.
+    # Deliberately fiber-local (Thread.current[]): sharing a handle across
+    # fibers could let two fibers of one thread enter the same handle
+    # mid-transfer under a fiber scheduler; less reuse beats corruption.
+    def curl_handle
+      handle = Thread.current[:ferto_curl] ||= Curl::Easy.new
+      handle.reset
+      handle
     end
 
     def build_body(aggr_id, aggr_limit, url, callback_url, callback_type,
